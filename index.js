@@ -23,7 +23,7 @@ module.exports = function (RED) {
       node.status({
         fill: 'green',
         shape: 'ring',
-        text: result.transitTime
+        text: 'superstruct'
       })
       node.send(msg)
     })

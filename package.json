@@ -6,14 +6,13 @@
   "bugs": {
     "url": "https://github.com/lvenier/node-red-contrib-superstruct/issues"
   },
-  "dependencies": {},
+  "dependencies": {
+    "superstruct": "*"
+  },
   "devDependencies": {
     "eslint": "*",
-    "eslint-config-standard": "*",
     "eslint-plugin-import": "*",
-    "eslint-plugin-node": "*",
-    "eslint-plugin-promise": "*",
-    "eslint-plugin-standard": "*"
+    "eslint-plugin-node": "*"
   },
   "deprecated": false,
   "description": "node-red superstruct support",
