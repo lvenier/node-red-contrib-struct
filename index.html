@@ -1,5 +1,5 @@
 <script type="text/javascript">
-  RED.nodes.registerType('superStruct', {
+  RED.nodes.registerType('struct', {
     category: 'yoctu',
     color: '#a6bbcf',
     defaults: {
@@ -7,330 +7,126 @@
         value: ""
       },
       rules: {
-        value: [{
-          v: "",
-          vt: "str"
-        }]
+        value: []
       },
     },
     inputs: 1,
     outputs: 2,
     icon: "file.png",
-    label: function() {
-      return this.name || "SuperStruct";
+    label: function () {
+      return this.name || "Struct";
     },
-    oneditprepare: function() {
+    oneditprepare: function () {
       var node = this;
 
-      $("#node-input-property").typedInput({
-        default: this.propertyType || 'string',
-        types: ['msg', 'flow', 'global', 'jsonata', 'env']
-      });
-      var outputCount = $("#node-input-outputs").val("{}");
-
-      var andLabel = this._("switch.and");
-
-      function resizeRule(rule) {
-        var newWidth = rule.width();
-        var selectField = rule.find("select");
-        var type = selectField.val() || "";
-        var valueField = rule.find(".node-input-rule-value");
-        var typeField = rule.find(".node-input-rule-type-value");
-        var numField = rule.find(".node-input-rule-num-value");
-        var expField = rule.find(".node-input-rule-exp-value");
-        var keyField = rule.find(".node-input-rule-key-value");
-        var btwnField1 = rule.find(".node-input-rule-btwn-value");
-        var btwnField2 = rule.find(".node-input-rule-btwn-value2");
-        var selectWidth;
-        if (type.length < 4) {
-          selectWidth = 60;
-        } else if (type === "regex") {
-          selectWidth = 147;
-        } else {
-          selectWidth = 120;
-        }
-        selectField.width(selectWidth);
-        if ((type === "btwn") || (type === "index")) {
-          btwnField1.typedInput("width", (newWidth - selectWidth - 70));
-          btwnField2.typedInput("width", (newWidth - selectWidth - 70));
-        } else if ((type === "head") || (type === "tail")) {
-          numField.typedInput("width", (newWidth - selectWidth - 70));
-        } else if (type === "jsonata_exp") {
-          expField.typedInput("width", (newWidth - selectWidth - 70));
-        } else if (type === "istype") {
-          typeField.typedInput("width", (newWidth - selectWidth - 70));
-        } else {
-          if (type === "true" || type === "false" || type === "null" || type === "nnull" || type === "empty" || type === "nempty" || type === "else") {
-            // valueField.hide();
-          } else {
-            valueField.typedInput("width", (newWidth - selectWidth - 70));
-          }
-        }
-      }
-
-      $("#node-input-rule-container").css('min-height', '150px').css('min-width', '450px').editableList({
-        addItem: function(container, i, opt) {
-          if (!opt.hasOwnProperty('r')) {
-            opt.r = {};
-          }
-          var rule = opt.r;
-          if (!rule.hasOwnProperty('t')) {
-            rule.t = 'eq';
-          }
-          if (!opt.hasOwnProperty('i')) {
-            opt._i = Math.floor((0x99999 - 0x10000) * Math.random()).toString();
-          }
+      $("#node-input-rule-container").css('min-height', '400px').css('min-width', '450px').editableList({
+        addItem: function (container, r) {
+          if (node.rules.length === r) node.rules.push([{
+            n: "",
+            t: "string",
+            vt: ""
+          }])
           container.css({
             overflow: 'hidden',
             whiteSpace: 'nowrap'
           });
-          var row = $('<div/>').appendTo(container);
-          var row2 = $('<div/>', {
-            style: "padding-top: 5px; padding-left: 175px;"
-          }).appendTo(container);
-          var row3 = $('<div/>', {
-            style: "padding-top: 5px; padding-left: 102px;"
-          }).appendTo(container);
-          var selectField = $('<input/>', {
-            class: "node-input-name-value",
-            type: "text",
-            style: "width:120px; margin-left: 5px; text-align: center;"
-          }).appendTo(row);
 
-          function createValueField() {
-            return $('<input/>', {
-              class: "node-input-rule-value",
+            var row = $('<div/>').appendTo(container);
+            var row2 = $('<div/>', {
+              style: "padding-top: 5px; padding-left: 175px;"
+            }).appendTo(container);
+            var row3 = $('<div/>', {
+              style: "padding-top: 5px; padding-left: 102px;"
+            }).appendTo(container);
+
+            var nameField = $('<input/>', {
+              class: "node-input-name-value",
               type: "text",
-              style: "margin-left: 5px;"
-            }).appendTo(row).typedInput({
-              default: 'str',
-              types: ['str', 'num']
-            });
-          }
-
-          function createNumValueField() {
-            return $('<input/>', {
-              class: "node-input-rule-num-value",
-              type: "text",
-              style: "margin-left: 5px;"
-            }).appendTo(row).typedInput({
-              default: 'num',
-              types: ['str', 'num']
-            });
-          }
-
-          function createBtwnValueField() {
-            return $('<input/>', {
-              class: "node-input-rule-btwn-value",
-              type: "text",
-              style: "margin-left: 5px;"
-            }).appendTo(row).typedInput({
-              default: 'num',
-              types: ['str', 'num']
-            });
-          }
-
-          function createBtwnAndLabel() {
-            return $('<span/>', {
-              class: "node-input-rule-btwn-label"
-            }).text(" " + andLabel + " ").appendTo(row3);
-          }
-
-          function createTypeValueField() {
-            return $('<input/>', {
+              style: "width:100px; margin-left: 5px; text-align: center;",
+              value: node.rules[r].n
+            }).appendTo(row);
+            var typeField = $('<input/>', {
               class: "node-input-rule-type-value",
               type: "text",
-              style: "margin-left: 5px;"
+              style: "width:100px; margin-left: 5px; text-align: center;"
             }).appendTo(row).typedInput({
-              default: 'string',
+              default: node.rules[r].t,
               types: [{
                   value: "string",
-                  label: RED._("common.type.string"),
+                  label: "string",
                   hasValue: false,
                   icon: "red/images/typedInput/az.png"
                 },
                 {
-                  value: "number",
-                  label: RED._("common.type.number"),
+                  value: "integer",
+                  label: "integer",
+                  hasValue: false,
+                  icon: "red/images/typedInput/09.png"
+                },
+                {
+                  value: "float",
+                  label: "float",
                   hasValue: false,
                   icon: "red/images/typedInput/09.png"
                 },
                 {
                   value: "boolean",
-                  label: RED._("common.type.boolean"),
+                  label: "boolean",
                   hasValue: false,
                   icon: "red/images/typedInput/bool.png"
                 },
                 {
                   value: "array",
-                  label: RED._("common.type.array"),
+                  label: "array",
                   hasValue: false,
                   icon: "red/images/typedInput/json.png"
-                },
-                {
-                  value: "buffer",
-                  label: RED._("common.type.buffer"),
-                  hasValue: false,
-                  icon: "red/images/typedInput/bin.png"
-                },
-                {
-                  value: "object",
-                  label: RED._("common.type.object"),
-                  hasValue: false,
-                  icon: "red/images/typedInput/json.png"
-                },
-                {
-                  value: "json",
-                  label: RED._("common.type.jsonString"),
-                  hasValue: false,
-                  icon: "red/images/typedInput/json.png"
-                },
-                {
-                  value: "undefined",
-                  label: RED._("common.type.undefined"),
-                  hasValue: false
-                },
-                {
-                  value: "null",
-                  label: RED._("common.type.null"),
-                  hasValue: false
                 }
               ]
-            });
-          }
-
-          var valueField = null;
-          var numValueField = null;
-          var expValueField = null;
-          var btwnAndLabel = null;
-          var btwnValueField = null;
-          var btwnValue2Field = null;
-          var typeValueField = null;
-
-          createBtwnValueField()
-          valueField.typedInput('value', rule.v);
-          /*if ((rule.t == "btwn") || (rule.t == "index")) {
-            if (!btwnValueField) {
-              btwnValueField = createBtwnValueField();
-            }
-            btwnValueField.typedInput('value', rule.v);
-            btwnValueField.typedInput('type', rule.vt || 'num');
-
-            if (!btwnValue2Field) {
-              btwnValue2Field = createBtwnValue2Field();
-            }
-            btwnValue2Field.typedInput('value', rule.v2);
-            btwnValue2Field.typedInput('type', rule.v2t || 'num');
-          } else if ((rule.t === "head") || (rule.t === "tail")) {
-            if (!numValueField) {
-              numValueField = createNumValueField();
-            }
-            numValueField.typedInput('value', rule.v);
-            numValueField.typedInput('type', rule.vt || 'num');
-          } else if (rule.t === "istype") {
-            if (!typeValueField) {
-              typeValueField = createTypeValueField();
-            }
-            typeValueField.typedInput('value', rule.vt);
-            typeValueField.typedInput('type', rule.vt);
-          } else if (rule.t === "jsonata_exp") {
-            if (!expValueField) {
-              expValueField = createExpValueField();
-            }
-            expValueField.typedInput('value', rule.v);
-            expValueField.typedInput('type', rule.vt || 'jsonata');
-          } else if (typeof rule.v != "undefined") {
-            if (!valueField) {
-              valueField = createValueField();
-            }
-            valueField.typedInput('value', rule.v);
-            valueField.typedInput('type', rule.vt || 'str');
-          }*/
-
-          /*var currentOutputs = JSON.parse(outputCount.val() || "{}");
-          currentOutputs[opt.hasOwnProperty('i') ? opt.i : opt._i] = i;
-          outputCount.val(JSON.stringify(currentOutputs));*/
+            }).appendTo(row);
+            var valueField = $('<input/>', {
+              class: "node-input-value-value",
+              type: "text",
+              style: "width:100px; margin-left: 5px; text-align: center;",
+              value: node.rules[r].vt
+            }).appendTo(row);
         },
-        removeItem: function(opt) {
+        removeItem: function (opt) {
           var rules = $("#node-input-rule-container").editableList('items');
-          rules.each(function(i) {
+          rules.each(function (i) {
             $(this).find(".node-input-rule-index").html(i + 1);
             var data = $(this).data('data');
           });
         },
-        resizeItem: resizeRule,
-        sortItems: function(rules) {
-          var rules = $("#node-input-rule-container").editableList('items');
-          rules.each(function(i) {
-            $(this).find(".node-input-rule-index").html(i + 1);
-            var data = $(this).data('data');
-          });
-        },
-        sortable: true,
         removable: true
       });
 
-      for (var i = 0; i < this.rules.length; i++) {
-        var rule = this.rules[i];
-        $("#node-input-rule-container").editableList('addItem', {
-          r: rule,
-          i: i
-        });
-      }
+      if (node.rules.length === 0) node.rules = [{
+            n: "",
+            t: "string",
+            vt: ""
+          }]
+          for (const r in node.rules) {
+            $("#node-input-rule-container").editableList('addItem', $('#node-input-rule-container'), r);
+          }
+
     },
-    oneditsave: function() {
-      var rules = $("#node-input-rule-container").editableList('items');
+    oneditsave: function () {
+      var rules = {}
       var node = this;
       node.rules = [];
-      rules.each(function(i) {
-        var ruleData = $(this).data('data');
-        var rule = $(this);
-        var type = rule.find("select").val();
+      $("#node-input-rule-container").find('.node-input-name-value').each(function (i) {
         var r = {
-          t: type
+          n: $($("#node-input-rule-container").find('.node-input-name-value')[i]).val(),
+          t: $($("#node-input-rule-container").find('.red-ui-typedInput-type-label')[i]).text(),
+          vt: $($("#node-input-rule-container").find('.node-input-value-value')[i]).val(),
         };
-        if (!(type === "true" || type === "false" || type === "null" || type === "nnull" || type === "empty" || type === "nempty" || type === "else")) {
-          if ((type === "btwn") || (type === "index")) {
-            r.v = rule.find(".node-input-rule-btwn-value").typedInput('value');
-            r.vt = rule.find(".node-input-rule-btwn-value").typedInput('type');
-            r.v2 = rule.find(".node-input-rule-btwn-value2").typedInput('value');
-            r.v2t = rule.find(".node-input-rule-btwn-value2").typedInput('type');
-          } else if ((type === "head") || (type === "tail")) {
-            r.v = rule.find(".node-input-rule-num-value").typedInput('value');
-            r.vt = rule.find(".node-input-rule-num-value").typedInput('type');
-          } else if (type === "istype") {
-            r.v = rule.find(".node-input-rule-type-value").typedInput('type');
-            r.vt = rule.find(".node-input-rule-type-value").typedInput('type');
-          } else if (type === "jsonata_exp") {
-            r.v = rule.find(".node-input-rule-exp-value").typedInput('value');
-            r.vt = rule.find(".node-input-rule-exp-value").typedInput('type');
-          } else {
-            r.v = rule.find(".node-input-rule-value").typedInput('value');
-            r.vt = rule.find(".node-input-rule-value").typedInput('type');
-          }
-          if (type === "regex") {
-            r.case = rule.find(".node-input-rule-case").prop("checked");
-          }
-        }
         node.rules.push(r);
       });
-      this.propertyType = $("#node-input-property").typedInput('type');
-    },
-    oneditresize: function(size) {
-      var rows = $("#dialog-form>div:not(.node-input-rule-container-row)");
-      var height = size.height;
-      for (var i = 0; i < rows.length; i++) {
-        height -= $(rows[i]).outerHeight(true);
-      }
-      var editorRow = $("#dialog-form>div.node-input-rule-container-row");
-      height -= (parseInt(editorRow.css("marginTop")) + parseInt(editorRow.css("marginBottom")));
-      height += 16;
-      $("#node-input-rule-container").editableList('height', height);
     }
   });
 </script>
 
-<script type="text/html" data-template-name="superStruct">
+<script type="text/html" data-template-name="struct">
   <div class="form-row">
     <label for="node-input-name"><i class="icon-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name">
@@ -341,6 +137,6 @@
   </div>
 </script>
 
-<script type="text/html" data-help-name="superStruct">
-  <p>A simple node for Superstruct support</p>
+<script type="text/html" data-help-name="struct">
+  <p>A simple node for struct support</p>
 </script>

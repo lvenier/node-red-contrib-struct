@@ -10,13 +10,14 @@
     "superstruct": "*"
   },
   "devDependencies": {
+    "jest": "*",
     "eslint": "*",
     "eslint-plugin-import": "*",
     "eslint-plugin-node": "*"
   },
   "deprecated": false,
-  "description": "node-red superstruct support",
-  "homepage": "https://github.com/lvenier/node-red-contrib-superstruct#readme",
+  "description": "node-red struct support",
+  "homepage": "https://github.com/lvenier/node-red-contrib-struct#readme",
   "keywords": [
     "node-red",
     "yoctu",
@@ -24,20 +25,42 @@
   ],
   "license": "ISC",
   "main": "index.js",
-  "name": "node-red-contrib-superstruct",
+  "name": "node-red-contrib-struct",
   "node-red": {
     "nodes": {
-      "transittime": "index.js"
+      "struct": "index.js"
     }
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/lvenier/node-red-contrib-superstruct.git"
+    "url": "https://github.com/lvenier/node-red-contrib-struct.git"
   },
   "scripts": {
     "lint": "eslint --ext .js index.js",
     "lint-fix": "eslint --fix --ext .js index.js",
-    "test": "npm run lint"
+    "test": "jest --detectOpenHandles --forceExit"
   },
-  "version": "1.0.0"
+  "jest": {
+    "verbose": true,
+    "testEnvironment": "node",
+    "modulePaths": [
+      "<rootDir>",
+      "/node_modules/"
+    ],
+    "collectCoverage": true,
+    "coverageDirectory": "test/coverage",
+    "coverageThreshold": {
+      "global": {
+        "branches": 0,
+        "functions": 0,
+        "lines": 0,
+        "statements": 0
+      }
+    },
+    "collectCoverageFrom": [
+      "index.js",
+      "validation.js"
+    ]
+  },
+  "version": "1.1.0"
 }

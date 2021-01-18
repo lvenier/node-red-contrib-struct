@@ -2,7 +2,7 @@
  "nodes": {
   "node-red": {
    "name": "node-red",
-   "version": "1.0.3",
+   "version": "1.1.3",
    "local": false,
    "nodes": {
     "inject": {
@@ -361,7 +361,7 @@
   },
   "node-red-node-rbe": {
    "name": "node-red-node-rbe",
-   "version": "0.2.5",
+   "version": "0.2.9",
    "local": false,
    "nodes": {
     "rbe": {
@@ -378,7 +378,7 @@
   },
   "node-red-node-tail": {
    "name": "node-red-node-tail",
-   "version": "0.0.3",
+   "version": "0.1.1",
    "local": false,
    "nodes": {
     "tail": {
@@ -390,6 +390,23 @@
      "local": false,
      "module": "node-red-node-tail",
      "file": "/usr/lib/node_modules/node-red/node_modules/node-red-node-tail/28-tail.js"
+    }
+   }
+  },
+  "node-red-contrib-struct": {
+   "name": "node-red-contrib-struct",
+   "version": "1.0.0",
+   "local": true,
+   "nodes": {
+    "struct": {
+     "name": "struct",
+     "types": [
+      "struct"
+     ],
+     "enabled": true,
+     "local": true,
+     "module": "node-red-contrib-struct",
+     "file": "/var/tmp/node-red-contrib-struct/sample/node_modules/node-red-contrib-struct/index.js"
     }
    }
   }
