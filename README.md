@@ -1,5 +1,5 @@
 # node-red-contrib-superstruct
-Node Red palette to support superstruct
+Node Red palette to support structure validation
 
 ## Execute Locally
 
