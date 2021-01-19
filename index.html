@@ -24,71 +24,115 @@
           if (node.rules.length === r) node.rules.push([{
             n: "",
             t: "string",
+            s: "0",
             vt: ""
           }])
           container.css({
             overflow: 'hidden',
             whiteSpace: 'nowrap'
           });
+          var row = $('<div/>').appendTo(container);
+          var row2 = $('<div/>', {
+            style: "padding-top: 5px; padding-left: 175px;"
+          }).appendTo(container);
+          var row3 = $('<div/>', {
+            style: "padding-top: 5px; padding-left: 102px;"
+          }).appendTo(container);
 
-            var row = $('<div/>').appendTo(container);
-            var row2 = $('<div/>', {
-              style: "padding-top: 5px; padding-left: 175px;"
-            }).appendTo(container);
-            var row3 = $('<div/>', {
-              style: "padding-top: 5px; padding-left: 102px;"
-            }).appendTo(container);
+          var nameField = $('<input/>', {
+            class: "node-input-name-value",
+            type: "text",
+            style: "width:100px; margin-left: 5px; text-align: center;",
+            value: node.rules[r].n
+          }).appendTo(row);
 
-            var nameField = $('<input/>', {
-              class: "node-input-name-value",
-              type: "text",
-              style: "width:100px; margin-left: 5px; text-align: center;",
-              value: node.rules[r].n
-            }).appendTo(row);
-            var typeField = $('<input/>', {
-              class: "node-input-rule-type-value",
-              type: "text",
-              style: "width:100px; margin-left: 5px; text-align: center;"
-            }).appendTo(row).typedInput({
-              default: node.rules[r].t,
-              types: [{
-                  value: "string",
-                  label: "string",
-                  hasValue: false,
-                  icon: "red/images/typedInput/az.png"
-                },
-                {
-                  value: "integer",
-                  label: "integer",
-                  hasValue: false,
-                  icon: "red/images/typedInput/09.png"
-                },
-                {
-                  value: "float",
-                  label: "float",
-                  hasValue: false,
-                  icon: "red/images/typedInput/09.png"
-                },
-                {
-                  value: "boolean",
-                  label: "boolean",
-                  hasValue: false,
-                  icon: "red/images/typedInput/bool.png"
-                },
-                {
-                  value: "array",
-                  label: "array",
-                  hasValue: false,
-                  icon: "red/images/typedInput/json.png"
-                }
-              ]
-            }).appendTo(row);
-            var valueField = $('<input/>', {
-              class: "node-input-value-value",
-              type: "text",
-              style: "width:100px; margin-left: 5px; text-align: center;",
-              value: node.rules[r].vt
-            }).appendTo(row);
+          var reqField = $('<input/>', {
+            class: "node-input-required-value",
+            type: "text",
+            style: "width:100px; margin-left: 5px; text-align: center;"
+          }).appendTo(row).typedInput({
+            default: 'optionnal',
+            types: [{
+                value: "required",
+                label: "required",
+                hasValue: false,
+                icon: "red/images/typedInput/az.png"
+              },
+              {
+                value: "optionnal",
+                label: "optionnal",
+                hasValue: false,
+                icon: "red/images/typedInput/az.png"
+              },
+              {
+                value: "default",
+                label: "default",
+                hasValue: false,
+                icon: "red/images/typedInput/az.png"
+              }
+            ]
+          }).appendTo(row);
+
+          var typeField = $('<input/>', {
+            class: "node-input-rule-type-value",
+            type: "text",
+            style: "width:100px; margin-left: 5px; text-align: center;"
+          }).appendTo(row).typedInput({
+            default: node.rules[r].t,
+            types: [{
+                value: "string",
+                label: "string",
+                hasValue: false,
+                icon: "red/images/typedInput/az.png"
+              },
+              {
+                value: "integer",
+                label: "integer",
+                hasValue: false,
+                icon: "red/images/typedInput/09.png"
+              },
+              {
+                value: "float",
+                label: "float",
+                hasValue: false,
+                icon: "red/images/typedInput/09.png"
+              },
+              {
+                value: "boolean",
+                label: "boolean",
+                hasValue: false,
+                icon: "red/images/typedInput/bool.png"
+              },
+              {
+                value: "array",
+                label: "array",
+                hasValue: false,
+                icon: "red/images/typedInput/json.png"
+              }
+            ]
+          }).appendTo(row);
+
+          var sizeField = $('<input/>', {
+            class: "node-input-size-value",
+            type: "number",
+            min: 0,
+            style: "width:100px; margin-left: 5px; text-align: center;",
+            value: parseInt(node.rules[r].s) || 0
+          }).appendTo(row);
+
+          let rand = Math.random().toString(36).substring(7)
+          var valueField = $('<input/>', {
+            id: rand,
+            class: "node-input-value-value hide",
+            type: "text",
+            style: "width:100px; margin-left: 5px; text-align: center;",
+            value: node.rules[r].vt
+          }).appendTo(row);
+
+          reqField.on("change", function() {
+            if (reqField.val() === 'default') $('#' + rand).typedInput('hide')
+            else $('#' + rand).typedInput('show')
+          })
         },
         removeItem: function (opt) {
           var rules = $("#node-input-rule-container").editableList('items');
@@ -101,13 +145,14 @@
       });
 
       if (node.rules.length === 0) node.rules = [{
-            n: "",
-            t: "string",
-            vt: ""
-          }]
-          for (const r in node.rules) {
-            $("#node-input-rule-container").editableList('addItem', $('#node-input-rule-container'), r);
-          }
+        n: "",
+        t: "string",
+        s: 0,
+        vt: ""
+      }]
+      for (const r in node.rules) {
+        $("#node-input-rule-container").editableList('addItem', $('#node-input-rule-container'), r);
+      }
 
     },
     oneditsave: function () {
@@ -118,7 +163,8 @@
         var r = {
           n: $($("#node-input-rule-container").find('.node-input-name-value')[i]).val(),
           t: $($("#node-input-rule-container").find('.red-ui-typedInput-type-label')[i]).text(),
-          vt: $($("#node-input-rule-container").find('.node-input-value-value')[i]).val(),
+          s: $($("#node-input-rule-container").find('.node-input-size-value')[i]).val(),
+          vt: $($("#node-input-rule-container").find('.node-input-value-value')[i]).val()
         };
         node.rules.push(r);
       });
