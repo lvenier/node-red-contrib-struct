@@ -24,8 +24,9 @@
           if (node.rules.length === r) node.rules.push([{
             n: "",
             t: "string",
+            m: "default",
             s: "0",
-            vt: ""
+            v: ""
           }])
           container.css({
             overflow: 'hidden',
@@ -44,14 +45,14 @@
             type: "text",
             style: "width:100px; margin-left: 5px; text-align: center;",
             value: node.rules[r].n
-          }).appendTo(row);
+          }).attr("required", "true").appendTo(row);
 
           var reqField = $('<input/>', {
             class: "node-input-required-value",
             type: "text",
             style: "width:100px; margin-left: 5px; text-align: center;"
           }).appendTo(row).typedInput({
-            default: 'optionnal',
+            default: node.rules[r].m,
             types: [{
                 value: "required",
                 label: "required",
@@ -108,6 +109,24 @@
                 label: "array",
                 hasValue: false,
                 icon: "red/images/typedInput/json.png"
+              },
+              {
+                value: "date",
+                label: "date",
+                hasValue: false,
+                icon: "red/images/typedInput/target.png"
+              },
+              {
+                value: "regex",
+                label: "regex",
+                hasValue: false,
+                icon: "red/images/typedInput/re.png"
+              },
+              {
+                value: "uuid",
+                label: "uuid",
+                hasValue: false,
+                icon: "red/images/typedInput/env.png"
               }
             ]
           }).appendTo(row);
@@ -123,16 +142,18 @@
           let rand = Math.random().toString(36).substring(7)
           var valueField = $('<input/>', {
             id: rand,
-            class: "node-input-value-value hide",
+            class: "node-input-value-value",
             type: "text",
             style: "width:100px; margin-left: 5px; text-align: center;",
-            value: node.rules[r].vt
+            value: node.rules[r].v
           }).appendTo(row);
 
           reqField.on("change", function() {
-            if (reqField.val() === 'default') $('#' + rand).typedInput('hide')
-            else $('#' + rand).typedInput('show')
+            node.rules[r].m = reqField.prev('div').find('input[type=hidden]').val()
+            if ( node.rules[r].m === 'default') $('#' + rand).removeClass('hide')
+            else $('#' + rand).addClass('hide')
           })
+          reqField.change();
         },
         removeItem: function (opt) {
           var rules = $("#node-input-rule-container").editableList('items');
@@ -148,7 +169,8 @@
         n: "",
         t: "string",
         s: 0,
-        vt: ""
+        m: "default",
+        v: ""
       }]
       for (const r in node.rules) {
         $("#node-input-rule-container").editableList('addItem', $('#node-input-rule-container'), r);
@@ -162,9 +184,10 @@
       $("#node-input-rule-container").find('.node-input-name-value').each(function (i) {
         var r = {
           n: $($("#node-input-rule-container").find('.node-input-name-value')[i]).val(),
-          t: $($("#node-input-rule-container").find('.red-ui-typedInput-type-label')[i]).text(),
+          t: $($("#node-input-rule-container").find('.node-input-rule-type-value')[i]).prev('div').find('input[type=hidden]').val(),
           s: $($("#node-input-rule-container").find('.node-input-size-value')[i]).val(),
-          vt: $($("#node-input-rule-container").find('.node-input-value-value')[i]).val()
+          v: $($("#node-input-rule-container").find('.node-input-value-value')[i]).val(),
+          m: $($("#node-input-rule-container").find('.node-input-required-value')[i]).prev('div').find('input[type=hidden]').val()
         };
         node.rules.push(r);
       });

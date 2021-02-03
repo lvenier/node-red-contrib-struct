@@ -20,12 +20,15 @@ describe("Struct Test Default", () => {
 })
 
 describe("Struct Tests", () => {
-    test('Success: test 1', async () => {
+    test('Error: test 1', async () => {
         config.push({
             rules: [{
                 n: "c",
                 t: "integer",
-                vt: ""
+                m: "default",
+                d: "",
+                v: "",
+                s: "0"
             }]
         })
         structure.push({
@@ -34,23 +37,23 @@ describe("Struct Tests", () => {
                 d: "5"
             }
         })
-        expect(require('../validation')(config[0], structure[0], null, JSON.parse(JSON.stringify(result)))).toStrictEqual([{
-            "default": "",
-            "key": "c",
-            "msg": "invalid type",
-            "type": "integer",
-            "value": "4"
-        }])
+        expect(require('../validation')(config[0], structure[0], null)).toHaveProperty('error')
     })
-    test('Success: test 2', async () => {
+    test('Error: test 2', async () => {
         structure.push({
             payload: {
                 c: 4,
                 d: "5"
             }
         })
-        expect(require('../validation')(config[0], structure[1], null, JSON.parse(JSON.stringify(result)))).toStrictEqual({
-            c: 4
+        expect(require('../validation')(config[0], structure[1], null)).toHaveProperty('error')
+    })
+    test('Success: test 2', async () => {
+        structure.push({
+            payload: {
+                c: 4
+            }
         })
+        expect(require('../validation')(config[0], structure[2], null)).toStrictEqual(structure[2].payload)
     })
 })

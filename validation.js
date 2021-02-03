@@ -1,114 +1,70 @@
+const s = require('superstruct')
+
 function StructError(node) {
-    node.status({
-      fill: 'red',
-      shape: 'ring',
-      text: result.errorMsg
-    })
+  node.status({
+    fill: 'red',
+    shape: 'ring',
+    text: ''
+  })
+}
+
+module.exports = function (config, msg, node) {
+
+  const struct = msg.payload
+  const rules = config.rules
+  const SS = {}
+  const SSD = {}
+
+  if (msg.req.headers['content-type'].toLowerCase() !== 'application/json') {
+    msg.payload = {
+      error: 'invalid content type.'
+    }
+    node.send([null, msg])
+    return msg.payload
   }
 
-module.exports = function(config, msg, node, result) {
-    let struct = msg.payload
-    let rules = config.rules
-    for (const r of rules) {
-      if (r.n in struct) {
-        switch (r.t) {
-          case 'string':
-            if (typeof r.vt !== 'string') result.errors.push({
-              key: r.n,
-              msg: 'invalid type',
-              type: r.t,
-              value: struct[r.n],
-              default: r.vt
-            })
-            break;
-          case 'integer':
-            if (typeof struct[r.n] !== 'number' || !Number.isInteger(struct[r.n])) result.errors.push({
-              key: r.n,
-              msg: 'invalid type',
-              type: r.t,
-              value: struct[r.n],
-              default: r.vt
-            })
-            break;
-          case 'float':
-            if (!(Number.isFloat(struct[r.n]))) result.errors.push({
-              key: r.n,
-              msg: 'invalid type',
-              type: r.t,
-              value: struct[r.n],
-              default: r.vt
-            })
-            break;
-          case 'array':
-            if (!(struct[r.n].isArray())) result.errors.push({
-              key: r.n,
-              msg: 'invalid type',
-              type: r.t,
-              value: struct[r.n],
-              default: r.vt
-            })
-            break;
-          case 'boolean':
-            if (typeof struct[r.n] !== 'boolean') result.errors.push({
-              key: r.n,
-              msg: 'invalid type',
-              type: r.t,
-              value: struct[r.n],
-              default: r.vt
-            })
-            break;
-          default:
-            result.errors.push({
-              key: r.n,
-              msg: 'unkown type',
-              type: r.t,
-              value: struct[r.n],
-              default: r.vt
-            })
-            break;
-        }
-      } else {
-        if (r.vt !== "") {
-          struct[r.n] = r.vt
-        } else {
-          result.errors.push({
-            key: r.n,
-            msg: 'missing',
-            type: r.t,
-            value: struct[r.n],
-            default: r.vt
-          })
-        }
-      }
+  for (const r of rules) {
+    switch (r.t) {
+      case 'string':
+        SS[r.n] = s.string()
+        break;
+      case 'integer':
+        SS[r.n] = s.number()
+        break;
     }
-  
-    for (let s = Object.keys(struct).length - 1; s >= 0; s--) {
-      let na = true
-      for (const r of rules) {
-        if (Object.keys(struct)[s] === r.n) {
-          na = false
-          break
-        }
-      }
-      if (na) delete struct[Object.keys(struct)[s]]
+    switch (r.m) {
+      case 'default':
+        SSD[r.n] = r.v
+        break;
+      case 'optional':
+        SS[r.n] = s.optional(SS[r.n])
+        break;
     }
-  
-    msg.payload = struct
-    if (result.errors.length > 0) {
-      msg.payload = result.errors
-      if (node !== null) {
-        node.send([null, msg])
-        StructError(node)
-      }
-    } else {
-      if (node !== null) {
-        node.send([msg, null])
-        node.status({
-          fill: 'green',
-          shape: 'ring',
-          text: 'ok'
-        })
-      }
+  }
+
+  const ss = s.defaulted(s.object(SS), SSD)
+  const [err0, val0] = s.validate(struct, ss, {
+    coerce: true
+  })
+
+  if (err0) {
+    msg.payload = {
+      error: err0
     }
-    return (msg.payload)
-  }  
+    if (node !== null) {
+      node.send([null, msg])
+      StructError(node)
+    }
+  } else {
+    if (node !== null) {
+      msg.payload = val0
+      node.send([msg, null])
+      node.status({
+        fill: 'green',
+        shape: 'ring',
+        text: 'ok'
+      })
+    }
+  }
+  return (msg.payload)
+}
